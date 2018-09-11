@@ -1,5 +1,11 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+// for spa
+const convert = require("koa-connect");
+const historyApiFallback = require("connect-history-api-fallback");
+
+// for proxy
 const fetch = require("node-fetch");
 var url = require("url");
 var querystring = require("querystring");
@@ -7,7 +13,7 @@ var querystring = require("querystring");
 const add = (app, middleware, option) => {
   middleware.webpack();
   middleware.content();
-
+  app.use(convert(historyApiFallback()));
   app.use(async (ctx, next) => {
     if (ctx.originalUrl.match(/\/proxy/)) {
       const { query } = url.parse(ctx.originalUrl);
@@ -39,6 +45,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, "./dist/"),
+    publicPath: '/',
     filename: "[name]-[hash].js"
   },
   module: {
